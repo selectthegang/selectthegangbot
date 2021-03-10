@@ -16,7 +16,7 @@ const client = new tmi.Client({
     username: process.env.USERNAME,
     password: process.env.PASSWORD
   },
-  channels: ['joggerjoel', 'selectthegang']
+  channels: ['joggerjoel']
 });
 client.connect();
 
@@ -41,7 +41,7 @@ io.on('connection', async socket => {
           socket.emit('chat', context.username, `unable to get website title!`, context.color, null)
         }
         else {
-          socket.emit('chat', context.username, `Website Title: <a href="${message}">${result.meta.title}</a>`, context.color, null)
+          socket.emit('chat', context.username, `Website Title - <a href="${message}">${result.meta.title}</a>`, context.color, null)
         }
       })
     }
