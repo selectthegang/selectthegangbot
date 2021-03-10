@@ -7,6 +7,7 @@ const ev = new Eval();
 const repldb = require(`@replit/database`);
 const database = new repldb();
 const Meta = require('html-metadata-parser');
+const { mods } = require('./mods')
 db = require('./database/mongo');
 
 const client = new tmi.Client({
@@ -27,7 +28,20 @@ client.connect().then(() => {
   db.connect(process.env.MONGO);
 });
 
+client.on('subscription', (channel, username, method, message, userstate) => {
+  if (channel === 'joggerjoel') {
+    database.set(username, 'subscriber').then(() => {
+      client.say(channel, `${username}, thanks for subscribing to the channel!`)
+    })
+  }
+  else {
+    return;
+  }
+});
+
 client.on('message', async (channel, context, message, self) => {
+  let blacklisted = await db.blacklist.get(context.username);
+  if (blacklisted) return;
   if (message.startsWith(`https:`) || message.startsWith(`http:`)) {
     Meta.parser(message, function(err, result) {
       if (err) {
@@ -41,8 +55,20 @@ client.on('message', async (channel, context, message, self) => {
   const args = message.slice(1).split(' ');
   const command = args.shift().toLowerCase();
 
-  if (message.startsWith(`${prefix}setRole`)) {
-    if (context.mod === false) {
+  if (message.toLowerCase().startsWith(`${prefix}rmrole`)) {
+    if (!mods.includes(context.username)) {
+      client.say(channel, context.username + ", you don't have permissions to use this command!")
+    }
+    else {
+      let user = args[0];
+
+      database.delete(user).then(() => {
+        client.say(channel, `removed ${user}'s roles`)
+      })
+    }
+  }
+  if (message.toLowerCase().startsWith(`${prefix}setrole`)) {
+    if (!mods.includes(context.username)) {
       client.say(channel, context.username + ", you don't have permissions to use this command!")
     }
     else {
@@ -173,7 +199,7 @@ client.on('message', async (channel, tags, message, self) => {
     });
   }
   if (message.startsWith(`${prefix}blacklist`)) {
-    if (tags.username === 'selectthegang') {
+    if (mods.includes(tags.username)) {
       db.blacklist.add(args.join(' ')).then(() => {
         client.say(channel, 'blacklisted user');
       });
@@ -182,7 +208,7 @@ client.on('message', async (channel, tags, message, self) => {
     }
   }
   if (message.startsWith(`${prefix}unblacklist`)) {
-    if (tags.username === 'selectthegang') {
+    if (mods.includes(tags.username)) {
       db.blacklist.remove(args.join(' ')).then(() => {
         client.say(channel, 'unblacklisted user');
       });
