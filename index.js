@@ -20,7 +20,7 @@ const client = new tmi.Client({
     username: process.env.USERNAME,
     password: process.env.PASSWORD
   },
-  channels: ['selectthegang', 'jeffblankenburg', 'joggerjoel']
+  channels: ['selectthegang', 'joggerjoel']
 });
 
 client.connect().then(() => {
@@ -69,11 +69,11 @@ client.on('message', async (channel, context, message, self) => {
       })
     }
   }
-if (message.toLowerCase().startsWith(`${prefix}minecraft`)){
-const status = await getStatus("minecraft.joggerjoel.com")
+  if (message.toLowerCase().startsWith(`${prefix}minecraft`)) {
+    const status = await getStatus("minecraft.joggerjoel.com")
 
-  client.say(channel, `Server Name: ${status.version['name']} | Server URL: minecraft.joggerjoel.com | Online Players: ${status.players['online']} | Max Players: ${status.players['max']} | Ping: ${status.ping}`)
-}
+    client.say(channel, `Server Name: ${status.version['name']} | Server URL: minecraft.joggerjoel.com | Online Players: ${status.players['online']} | Max Players: ${status.players['max']} | Ping: ${status.ping}`)
+  }
   if (message.toLowerCase().startsWith(`${prefix}rmrole`)) {
     if (!mods.includes(context.username)) {
       client.say(channel, context.username + ", you don't have permissions to use this command!")
