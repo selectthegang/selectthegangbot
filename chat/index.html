@@ -17,17 +17,17 @@
 		let socket = io();
     let chat = document.getElementById("chat");
 
-    socket.on('chat', (username, message, color, roles) => {
+    socket.on('chat', (username, message, color, roles, time) => {
   let item = document.createElement('li');
 
   if (roles === null){
-     item.innerHTML = `<h3><span style="color: ${color}">${username}</span>: ${message}</h3>`;
+     item.innerHTML = `<h3><span style="color: ${color}">${username}</span>: ${message}<span class="time"> (${time})</span></h3>`;
      chat.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
   }
   
   else {
-  item.innerHTML = `<h3>${roles} | <span style="color: ${color}">${username}</span>: ${message}</h3>`;
+  item.innerHTML = `<h3><img src="${roles}" class="badge"><span style="color: ${color}"> ${username}</span>: ${message}<span class="time"> (${time})</span></h3>`;
   chat.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
   }
@@ -39,6 +39,16 @@
 			margin: 0;
 			padding-bottom: 3rem;
 			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		}
+
+		.badge {
+			border: 10px;
+			border-radius: 2px;
+		}
+
+		.time {
+			color: #999;
+			opacity: 1
 		}
 
 		.roles {
@@ -54,7 +64,8 @@
 		}
 
 		#chat>li {
-			padding: 0.5rem 1rem;
+			padding: 0.1vw;
+			border-radius: 5%;
 			background-color: #efefef;
 		}
 

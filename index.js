@@ -4,10 +4,9 @@ const website = require('./website');
 let prefix = process.env.PREFIX;
 const Eval = require('open-eval');
 const ev = new Eval();
-const repldb = require(`@replit/database`);
-const database = new repldb();
 const Meta = require('html-metadata-parser');
-const { mods } = require('./mods')
+const { mods } = require('./mods');
+const { getStatus } = require("mc-server-status");
 db = require('./database/mongo');
 
 const client = new tmi.Client({
@@ -30,7 +29,7 @@ client.connect().then(() => {
 
 client.on('subscription', (channel, username, method, message, userstate) => {
   if (channel === 'joggerjoel') {
-    database.set(username, 'subscriber').then(() => {
+    db.user.add(username, username, 'subscriber').then(() => {
       client.say(channel, `${username}, thanks for subscribing to the channel!`)
     })
   }
@@ -55,6 +54,26 @@ client.on('message', async (channel, context, message, self) => {
   const args = message.slice(1).split(' ');
   const command = args.shift().toLowerCase();
 
+  if (message.toLowerCase().startsWith(`${prefix}setnick`)) {
+    let currentinfo = await db.user.get(context.username);
+    let nickname = args[0];
+
+    if (currentinfo === null) {
+      db.user.add(context.username, args[0], null).then(() => {
+        client.say(channel, `${context.username}, you're nickname has been set to ${nickname}`);
+      })
+    }
+    else {
+      db.user.add(context.username, args[0], currentinfo.role).then(() => {
+        client.say(channel, `${context.username}, you're nickname has been set to ${nickname}`);
+      })
+    }
+  }
+if (message.toLowerCase().startsWith(`${prefix}minecraft`)){
+const status = await getStatus("minecraft.joggerjoel.com")
+
+  client.say(channel, `Server Name: ${status.version['name']} | Server URL: minecraft.joggerjoel.com | Online Players: ${status.players['online']} | Max Players: ${status.players['max']} | Ping: ${status.ping}`)
+}
   if (message.toLowerCase().startsWith(`${prefix}rmrole`)) {
     if (!mods.includes(context.username)) {
       client.say(channel, context.username + ", you don't have permissions to use this command!")
@@ -62,7 +81,7 @@ client.on('message', async (channel, context, message, self) => {
     else {
       let user = args[0];
 
-      database.delete(user).then(() => {
+      db.user.delete(user).then(() => {
         client.say(channel, `removed ${user}'s roles`)
       })
     }
@@ -78,7 +97,7 @@ client.on('message', async (channel, context, message, self) => {
         .slice(2)
         .join(' ');
 
-      database.set(user, rolename).then(() => {
+      db.user.add(user, user, rolename).then(() => {
         client.say(channel, `assigned ${rolename} to ${user}`)
       })
     }

@@ -16,7 +16,7 @@ const client = new tmi.Client({
     username: process.env.USERNAME,
     password: process.env.PASSWORD
   },
-  channels: ['joggerjoel']
+  channels: ['joggerjoel', 'selectthegang']
 });
 client.connect();
 
@@ -26,6 +26,16 @@ const bannedUsers = [
 
 io.on('connection', async socket => {
   client.on('message', async (channel, context, message, self) => {
+    let ts = Date.now();
+    let date_ob = new Date(ts);
+    let date = date_ob.getDate();
+    let month = date_ob.getMonth() + 1;
+    let year = date_ob.getFullYear();
+    let hours = date_ob.getHours();
+    let minutes = date_ob.getMinutes();
+    let seconds = date_ob.getSeconds();
+
+
     if (bannedUsers.includes(context.username)) {
       return;
     }
@@ -36,19 +46,36 @@ io.on('connection', async socket => {
       return;
     }
     if (message.startsWith(`https:`) || message.startsWith(`http:`)) {
+      let userinfo = await db.user.get(context.username);
+
       Meta.parser(message, function(err, result) {
         if (err) {
-          socket.emit('chat', context.username, `unable to get website title!`, context.color, null)
+          if (userinfo === null) {
+            socket.emit('chat', context.username, `unable to get website title!`, context.color, null, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+          }
+          else {
+            socket.emit('chat', userinfo.nickname, `unable to get website title!`, context.color, userinfo.role, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+          }
         }
         else {
-          socket.emit('chat', context.username, `Website Title - <a href="${message}">${result.meta.title}</a>`, context.color, null)
+          if (userinfo === null) {
+            socket.emit('chat', context.username, `Website Title - <a href="${message}">${result.meta.title}</a>`, context.color, null, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+          }
+          else {
+            socket.emit('chat', userinfo.nickname, `Website Title - <a href="${message}">${result.meta.title}</a>`, context.color, userinfo.role, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+          }
         }
       })
     }
     else {
-      let roles = await database.get(context.username);
+      let userinfo = await db.user.get(context.username);
 
-      socket.emit('chat', context.username, message, context.color, roles)
+      if (userinfo === null) {
+        socket.emit('chat', context.username, message, context.color, null, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+      }
+      else {
+        socket.emit('chat', userinfo.nickname, message, context.color, userinfo.role, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+      }
     }
   })
 });

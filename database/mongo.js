@@ -2,11 +2,13 @@ const mongoose = require('mongoose');
 const pointSchema = require('./schema/pointSchema');
 const blacklistSchema = require('./schema/blacklistSchema');
 const itemSchema = require('./schema/itemSchema');
+const userSchema = require('./schema/userSchema');
 
 module.exports = {
   pointSchema: require('./schema/pointSchema'),
   blacklistSchema: require('./schema/blacklistSchema'),
   itemSchema: require('./schema/itemSchema'),
+  userSchema: require('./schema/userSchema'),
 
   async connect(uri) {
     await mongoose.connect(
@@ -44,6 +46,33 @@ module.exports = {
         }
       );
     }
+  },
+  user: {
+    async get(username) {
+      const res = await userSchema.findOne({ username: username });
+      return res;
+    },
+    async delete(username) {
+      const res = await userSchema.deleteOne({ username: username });
+      return res;
+    },
+    async add(username, nickname, role) {
+      const add = await userSchema.findOneAndUpdate(
+        {
+          username: username,
+          nickname: nickname,
+          role: role,
+        },
+        {
+          username: username,
+          nickname: nickname,
+          role: role,
+        },
+        {
+          upsert: true
+        }
+      );
+    },
   },
   point: {
     async list() {
