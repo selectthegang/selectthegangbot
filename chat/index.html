@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Chat | STG BOT</title>
+	<script src="/socket.io/socket.io.js">
+
+	</script>
+</head>
+
+<body>
+	<ul id="chat" class="chat"></ul>
+
+	<script>
+		let socket = io();
+    let chat = document.getElementById("chat");
+
+    socket.on('chat', (username, message, color, roles) => {
+  let item = document.createElement('li');
+
+  if (roles === null){
+     item.innerHTML = `<h3><span style="color: ${color}">${username}</span>: ${message}</h3>`;
+     chat.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+  }
+  
+  else {
+  item.innerHTML = `<h3>${roles} | <span style="color: ${color}">${username}</span>: ${message}</h3>`;
+  chat.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+  }
+})
+	</script>
+	<style>
+		body {
+			background-color: #333;
+			margin: 0;
+			padding-bottom: 3rem;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		}
+
+		.roles {
+			background-color: cyan;
+			width: 150px;
+			border-radius: 50%;
+		}
+
+		#chat {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		#chat>li {
+			padding: 0.5rem 1rem;
+			background-color: #efefef;
+		}
+
+		#chat>li:nth-child(odd) {
+			background: #efefef;
+		}
+
+		a {
+			color: red;
+			text-decoration: none;
+		}
+	</style>
+</body>
+
+</html>

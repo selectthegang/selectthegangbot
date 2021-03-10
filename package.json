@@ -12,9 +12,11 @@
   "dependencies": {
     "@replit/database": "^2.0.0",
     "express": "^4.17.1",
+    "html-metadata-parser": "^1.0.3",
     "mathjs": "^9.2.0",
     "mongoose": "^5.11.18",
     "open-eval": "^1.0.0",
+    "socket.io": "^3.1.2",
     "tmi.js": "^1.7.1"
   }
 }
