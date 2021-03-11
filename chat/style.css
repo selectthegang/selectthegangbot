@@ -53,16 +53,3 @@ a {
 #videos>li:nth-child(odd) {
 	background: #efefef;
 }
-
-.play-btn {
-	display: block;
-	margin-top: 20px;
-	padding: 5px 10px;
-	border-radius: 20px;
-	background-color: greenyellow;
-	border: none;
-	color: #222;
-	font-size: 15px;
-	font-family: monospace;
-	outline: none;
-}

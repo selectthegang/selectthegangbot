@@ -30,8 +30,8 @@ io.on('connection', async socket => {
   client.on('message', async (channel, context, message, self) => {
     const args = message.slice(1).split(' ');
     const command = args.shift().toLowerCase();
-
-    if (message.startsWith(`${prefix}request`)) {
+    
+    if (message.startsWith(`${prefix}play`)) {
       let result = await searcher.search(args.join(' '));
       let date_ob = new Date();
       let hours = date_ob.getUTCHours();

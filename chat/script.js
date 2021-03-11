@@ -24,7 +24,7 @@ socket.on('refresh', (sure) => {
 socket.on('request', (username, url, video, image) => {
   let item = document.createElement('li');
 
-  item.innerHTML = `<h3>${username}: ${video}<h3><img src="${image}" class="thumbnail"><button onclick='window.open("${url}")' class="play-btn">Play Video</button>`;
+  item.innerHTML = `<h3>${username}: ${video}<h3><img src="${image}" onclick='window.open("${url}")' class="thumbnail"><span class="close" onclick="this.parentElement.style.display='none';">Close</span>`;
   videos.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
 });
