@@ -6,20 +6,15 @@ body {
 		}
 
 		.badge {
+      height: 33px;
 			border: 10px;
-			border-radius: 2px;
+			border-radius: 10px;
 		}
 
 		.time {
 			color: #999;
       font-size: 3.4vw !important;
 			opacity: 1
-		}
-
-		.roles {
-			background-color: cyan;
-			width: 150px;
-			border-radius: 50%;
 		}
 
 		#chat {
