@@ -2,5 +2,8 @@
   "mods": [
     "selectthegang",
     "joggerjoel"
+  ],
+  "bannedUsers": [
+    "selectthegang_bot"
   ]
 }

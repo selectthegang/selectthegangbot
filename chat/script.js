@@ -1,5 +1,6 @@
 let socket = io();
 let chat = document.getElementById("chat");
+let playlist = document.getElementById("playlist");
 
 socket.on('chat', (username, message, color, roles, time) => {
   let item = document.createElement('li');
@@ -25,6 +26,7 @@ socket.on('request', (username, url, video, image) => {
   let item = document.createElement('li');
 
   item.innerHTML = `<h3>${username}: ${video}<h3><img src="${image}" onclick='window.open("${url}")' class="thumbnail"><span class="close" onclick="this.parentElement.style.display='none';">Close</span>`;
-  videos.appendChild(item);
+
+  playlist.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
 });

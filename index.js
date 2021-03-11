@@ -4,7 +4,7 @@ const website = require('./website');
 let prefix = process.env.PREFIX;
 //const Eval = require('open-eval');
 //const ev = new Eval();
-const { mods } = require('./mods');
+const { mods, bannedUsers } = require('./roles');
 const { getStatus } = require("mc-server-status");
 db = require('./database/mongo');
 
@@ -43,6 +43,46 @@ client.on('message', async (channel, context, message, self) => {
   const args = message.slice(1).split(' ');
   const command = args.shift().toLowerCase();
 
+  if (message.startsWith(`${prefix}timeout`)) {
+    if (!mods.includes(context.username)) {
+      return client.say(channel, `you don't have permissions to use this command!`);
+    }
+    else {
+      client.say(channel, `/timeout ${args[0]} ${args[1]}`);
+      client.say(channel, `timed ${args[0]} out for ${args[1]}`)
+    }
+  }
+
+  if (message.startsWith(`${prefix}ban`)) {
+    if (!mods.includes(context.username)) {
+      return client.say(channel, `you don't have permissions to use this command!`);
+    }
+    else {
+      client.say(channel, `/ban ${args[0]}`);
+      client.say(channel, `banned ${args[0]}`)
+    }
+  }
+
+  if (message.startsWith(`${prefix}untimeout`)) {
+    if (!mods.includes(context.username)) {
+      return client.say(channel, `you don't have permissions to use this command!`);
+    }
+    else {
+      client.say(channel, `/untimeout ${args[0]}`);
+      client.say(channel, `untimed ${args[0]}`)
+    }
+  }
+
+  if (message.startsWith(`${prefix}unban`)) {
+    if (!mods.includes(context.username)) {
+      return client.say(channel, `you don't have permissions to use this command!`);
+    }
+    else {
+      client.say(channel, `/unban ${args[0]}`);
+      client.say(channel, `unbanned ${args[0]}`)
+    }
+  }
+
   const querystring = require('querystring');
   const fetch = require('node-fetch');
 
@@ -77,7 +117,7 @@ client.on('message', async (channel, context, message, self) => {
   if (message.toLowerCase().startsWith(`${prefix}minecraft`)) {
     const status = await getStatus("minecraft.joggerjoel.com")
 
-    client.say(channel, `Server: minecraft.joggerjoel.com | Map: minecraft.joggerjoel.com:8123 | Online Players: ${status.players['online']} | Max Players: ${status.players['max']} | Ping: ${status.ping}`)
+    client.say(channel, `Server: minecraft.joggerjoel.com | Map: minecraft.joggerjoel.com:8123 | Online Players: ${status.players['online']} | Max Players: ${status.players['max']}`)
   }
   if (message.toLowerCase().startsWith(`${prefix}rmrole`)) {
     if (!mods.includes(context.username)) {
@@ -110,6 +150,13 @@ client.on('message', async (channel, context, message, self) => {
 });
 
 client.on('message', async (channel, context, message, self) => {
+  //8404b014-efd8-41d5-97e8-734d8e7984d1
+
+  if (context['custom-reward-id'] === '8404b014-efd8-41d5-97e8-734d8e7984d1') {
+    client.say(channel, `/timeout ${context.username} 1m`);
+  }
+});
+client.on('message', async (channel, context, message, self) => {
   //eb37f197-6768-4ea9-8854-ff133f37d6ad
 
   if (context['custom-reward-id'] === 'eb37f197-6768-4ea9-8854-ff133f37d6ad') {
@@ -130,36 +177,6 @@ client.on('message', async (channel, context, message, self) => {
     client.say(channel, array);
   }
 });
-/*client.on('message', async (channel, context, message, self) => {
-  if (context['custom-reward-id'] === 'e36bc78c-71c9-42c8-bdef-415cba7407c1') {
-    console.log('recieved reward info...');
-    let current = await db.point.get(context.username);
-    let Balance = '215';
-
-    if (current === null) {
-      db.point.add(content.username, 115).then(() => {
-        client.say(
-          channel,
-          `200 STG Points Rewarded, ${
-          context.username
-          } has ${Balance} points available`
-        );
-      });
-    } else {
-      db.point.set(context.username, math.add(current.points, 200))
-        .then(async () => {
-          let newBal = await db.point.get(context.username);
-
-          client.say(
-            channel,
-            `200 STG Points Rewarded, ${context.username} has ${
-            newBal.points
-            } points available`
-          );
-        });
-    }
-  }
-});*/
 
 client.on('message', async (channel, tags, message, self) => {
   let blacklisted = await db.blacklist.get(tags.username);

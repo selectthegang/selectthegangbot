@@ -38,18 +38,18 @@ a {
 	text-decoration: none;
 }
 
-#videos {
+#playlist {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 }
 
-#videos>li {
+#playlist>li {
 	padding: 0.1vw;
 	border-radius: 5%;
 	background-color: #efefef;
 }
 
-#videos>li:nth-child(odd) {
+#playlist>li:nth-child(odd) {
 	background: #efefef;
 }
