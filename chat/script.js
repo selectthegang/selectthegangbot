@@ -5,14 +5,26 @@ socket.on('chat', (username, message, color, roles, time) => {
   let item = document.createElement('li');
 
   if (roles === null) {
-    item.innerHTML = `<h3><span style="color: ${color}">${username}</span>: ${message}<span class="time"> (${time})</span></h3>`;
+    item.innerHTML = `<h3><span class="time">${time}</span><span style="color: ${color}">${username}</span>: ${message}</h3>`;
     chat.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
   }
 
   else {
-    item.innerHTML = `<h3><img src="${roles}" class="badge"><span style="color: ${color}"> ${username}</span>: ${message}<span class="time"> (${time})</span></h3>`;
+    item.innerHTML = `<h3><span class="time">${time}</span><img src="${roles}" class="badge"><span style="color: ${color}"> ${username}</span>: ${message}</h3>`;
     chat.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
   }
 })
+
+socket.on('refresh', (sure) => {
+  location.reload();
+});
+
+socket.on('request', (username, url, video, image) => {
+  let item = document.createElement('li');
+
+  item.innerHTML = `<h3>${username}: ${video}<h3><img src="${image}" class="thumbnail"><button onclick='window.open("${url}")' class="play-btn">Play Video</button>`;
+  videos.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+});

@@ -2,9 +2,8 @@ const tmi = require('tmi.js');
 const math = require('mathjs');
 const website = require('./website');
 let prefix = process.env.PREFIX;
-const Eval = require('open-eval');
-const ev = new Eval();
-const Meta = require('html-metadata-parser');
+//const Eval = require('open-eval');
+//const ev = new Eval();
 const { mods } = require('./mods');
 const { getStatus } = require("mc-server-status");
 db = require('./database/mongo');
@@ -41,19 +40,25 @@ client.on('subscription', (channel, username, method, message, userstate) => {
 client.on('message', async (channel, context, message, self) => {
   let blacklisted = await db.blacklist.get(context.username);
   if (blacklisted) return;
-  if (message.startsWith(`https:`) || message.startsWith(`http:`)) {
-    Meta.parser(message, function(err, result) {
-      if (err) {
-        client.say(channel, `could not get website title from ${context.username}'s most recent message`)
-      }
-      else {
-        client.say(channel, `${context.username} just sent a link towards ${result.meta.title}`)
-      }
-    })
-  }
   const args = message.slice(1).split(' ');
   const command = args.shift().toLowerCase();
 
+  const querystring = require('querystring');
+  const fetch = require('node-fetch');
+
+  if (message.startsWith(`${prefix}urban`)) {
+    if (!args.join(' ')) {
+      return client.say(channel, 'You need to supply a search term!');
+    }
+
+    const query = querystring.stringify({ term: args.join(' ') });
+
+    const { list } = await fetch(`https://api.urbandictionary.com/v0/define?${query}`).then(response => response.json());
+    if (!list.length) {
+      return client.say(channel, `No results found for **${args.join(' ')}**.`);
+    }
+    client.say(channel, list[0].definition)
+  };
   if (message.toLowerCase().startsWith(`${prefix}setnick`)) {
     let currentinfo = await db.user.get(context.username);
     let nickname = args[0];
@@ -72,7 +77,7 @@ client.on('message', async (channel, context, message, self) => {
   if (message.toLowerCase().startsWith(`${prefix}minecraft`)) {
     const status = await getStatus("minecraft.joggerjoel.com")
 
-    client.say(channel, `Server Name: ${status.version['name']} | Server URL: minecraft.joggerjoel.com | Online Players: ${status.players['online']} | Max Players: ${status.players['max']} | Ping: ${status.ping}`)
+    client.say(channel, `Server: minecraft.joggerjoel.com | Map: minecraft.joggerjoel.com:8123 | Online Players: ${status.players['online']} | Max Players: ${status.players['max']} | Ping: ${status.ping}`)
   }
   if (message.toLowerCase().startsWith(`${prefix}rmrole`)) {
     if (!mods.includes(context.username)) {
@@ -276,7 +281,7 @@ client.on('message', async (channel, tags, message, self) => {
       }
     }
   }
-  if (message.startsWith(`${prefix}eval`)) {
+  /*if (message.startsWith(`${prefix}eval`)) {
     let lang = args[0];
     let code = message
       .split(' ')
@@ -290,7 +295,7 @@ client.on('message', async (channel, tags, message, self) => {
       .catch(() => {
         client.say(channel, 'error');
       });
-  }
+  }*/
   if (message.startsWith(`${prefix}transfer`)) {
     let sender = await db.point.get(tags.username);
     let reciever = await db.point.get(args[0]);

@@ -2,7 +2,12 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const tmi = require('tmi.js');
-const Meta = require('html-metadata-parser');
+let prefix = process.env.PREFIX;
+const { YTSearcher } = require('ytsearcher');
+const searcher = new YTSearcher({
+  key: process.env.GOOGLE,
+  revealkey: false,
+});
 const client = new tmi.Client({
   options: {
     debug: false
@@ -21,58 +26,67 @@ client.connect();
 const bannedUsers = [
   'selectthegang_bot'
 ];
+io.on('connection', async socket => {
+  client.on('message', async (channel, context, message, self) => {
+    const args = message.slice(1).split(' ');
+    const command = args.shift().toLowerCase();
+
+    if (message.startsWith(`${prefix}request`)) {
+      let result = await searcher.search(args.join(' '));
+      let date_ob = new Date();
+      let hours = date_ob.getUTCHours();
+      let minutes = date_ob.getUTCMinutes();
+      let seconds = date_ob.getUTCSeconds();;
+
+      let time = `${hours}:${minutes}:${seconds}`;
+
+      let thumbnail = result.first['thumbnails'];
+
+      socket.emit('request', context.username, result.first.url, result.first.title, thumbnail['default'].url);
+
+      let userinfo = await db.user.get(context.username);
+
+      if (userinfo === null) {
+        client.say('chat', context.username, `requested ${result.first.title}`, context.color, null, time)
+      }
+      else {
+        socket.emit('chat', userinfo.nickname, `requested ${result.first.title}`, context.color, userinfo.role, time)
+      }
+
+    }
+  })
+});
+
 
 io.on('connection', async socket => {
   client.on('message', async (channel, context, message, self) => {
-    let ts = Date.now();
-    let date_ob = new Date(ts);
-    let date = date_ob.getDate();
-    let month = date_ob.getMonth() + 1;
-    let year = date_ob.getFullYear();
-    let hours = date_ob.getHours();
-    let minutes = date_ob.getMinutes();
-    let seconds = date_ob.getSeconds();
+    let date_ob = new Date();
+    let hours = date_ob.getUTCHours();
+    let minutes = date_ob.getUTCMinutes();
+    let seconds = date_ob.getUTCSeconds();;
 
+    let time = `${hours}:${minutes}:${seconds}`;
 
+    if (message.startsWith(`${prefix}refresh`)) {
+      socket.emit('refresh', true)
+    }
     if (bannedUsers.includes(context.username)) {
       return;
     }
-    if (message.startsWith('!')) {
+    if (message.startsWith(prefix)) {
       return;
     }
     if (context['custom-reward-id']) {
       return;
     }
-    if (message.startsWith(`https:`) || message.startsWith(`http:`)) {
-      let userinfo = await db.user.get(context.username);
-
-      Meta.parser(message, function(err, result) {
-        if (err) {
-          if (userinfo === null) {
-            socket.emit('chat', context.username, `unable to get website title!`, context.color, null, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
-          }
-          else {
-            socket.emit('chat', userinfo.nickname, `unable to get website title!`, context.color, userinfo.role, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
-          }
-        }
-        else {
-          if (userinfo === null) {
-            socket.emit('chat', context.username, `Website Title - <a href="${message}">${result.meta.title}</a>`, context.color, null, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
-          }
-          else {
-            socket.emit('chat', userinfo.nickname, `Website Title - <a href="${message}">${result.meta.title}</a>`, context.color, userinfo.role, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
-          }
-        }
-      })
-    }
     else {
       let userinfo = await db.user.get(context.username);
 
       if (userinfo === null) {
-        socket.emit('chat', context.username, message, context.color, null, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+        socket.emit('chat', context.username, message, context.color, null, time)
       }
       else {
-        socket.emit('chat', userinfo.nickname, message, context.color, userinfo.role, `${month}/${date}/${year} - ${hours}:${minutes}:${seconds}`)
+        socket.emit('chat', userinfo.nickname, message, context.color, userinfo.role, time)
       }
     }
   })

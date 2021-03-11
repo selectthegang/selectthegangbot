@@ -1,39 +1,68 @@
 body {
-			background-color: #333;
-			margin: 0;
-			padding-bottom: 3rem;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-		}
+	background-color: #333;
+	margin: 0;
+	padding-bottom: 3rem;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
 
-		.badge {
-      height: 33px;
-			border: 10px;
-			border-radius: 10px;
-		}
+.badge {
+	height: 33px;
+	border: 10px;
+	border-radius: 10px;
+}
 
-		.time {
-			color: #999;
-      font-size: 3.4vw !important;
-			opacity: 1
-		}
+.time {
+	color: #999;
+	/* font-size: 3vw !important; */
+	opacity: 1
+}
 
-		#chat {
-			list-style-type: none;
-			margin: 0;
-			padding: 0;
-		}
+#chat {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
 
-		#chat>li {
-			padding: 0.1vw;
-			border-radius: 5%;
-			background-color: #efefef;
-		}
+#chat>li {
+	padding: 0.1vw;
+	border-radius: 5%;
+	background-color: #efefef;
+}
 
-		#chat>li:nth-child(odd) {
-			background: #efefef;
-		}
+#chat>li:nth-child(odd) {
+	background: #efefef;
+}
 
-		a {
-			color: red;
-			text-decoration: none;
-		}
+a {
+	color: red;
+	text-decoration: none;
+}
+
+#videos {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+#videos>li {
+	padding: 0.1vw;
+	border-radius: 5%;
+	background-color: #efefef;
+}
+
+#videos>li:nth-child(odd) {
+	background: #efefef;
+}
+
+.play-btn {
+	display: block;
+	margin-top: 20px;
+	padding: 5px 10px;
+	border-radius: 20px;
+	background-color: greenyellow;
+	border: none;
+	color: #222;
+	font-size: 15px;
+	font-family: monospace;
+	outline: none;
+}
