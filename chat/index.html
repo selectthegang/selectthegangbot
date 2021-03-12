@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Chat | STG BOT</title>
+	<title>STG Chat</title>
 	<script src="/socket.io/socket.io.js">
 
 	</script>
@@ -12,9 +12,14 @@
 </head>
 
 <body>
+	<center>
+		<div class="loader" id="loader"></div>
+	</center>
+	<center>
+		<h4 class="waiting" id="waiting"></h4>
+	</center>
 	<ul id="chat" class="chat"></ul>
-
-	<hr />
+	<hr id="line" />
 	<ul id="playlist"></ul>
 
 	<script src="/chatjs">

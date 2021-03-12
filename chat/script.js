@@ -1,32 +1,46 @@
 let socket = io();
 let chat = document.getElementById("chat");
 let playlist = document.getElementById("playlist");
+let loader = document.getElementById("loader");
+let line = document.getElementById("line");
+let waiting = document.getElementById("waiting");
 
-socket.on('chat', (username, message, color, roles, time) => {
+line.style.display = 'none';
+waiting.innerText = `waiting for new messages...`;
+
+function hideLoader() {
+  loader.style.display = 'none';
+  waiting.style.display = 'none';
+  line.style.display = 'block';
+}
+
+socket.on('chat', (username, message, color, time, pfp) => {
+
   let item = document.createElement('li');
 
-  if (roles === null) {
-    item.innerHTML = `<h3><span class="time">${time}</span><span style="color: ${color}">${username}</span>: ${message}</h3>`;
-    chat.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  }
+  item.innerHTML = `<div class="container"><img src="${pfp}" alt="${username}"><span style="color: ${color}; font-weight: bold;">${username}</span><p>${message}</p><span class="time-right">${time} (UTC)</span></div>`;
 
-  else {
-    item.innerHTML = `<h3><span class="time">${time}</span><img src="${roles}" class="badge"><span style="color: ${color}"> ${username}</span>: ${message}</h3>`;
-    chat.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  }
-})
+  hideLoader();
+
+  chat.appendChild(item);
+
+  window.scrollTo(0, document.body.scrollHeight);
+
+});
 
 socket.on('refresh', (sure) => {
   location.reload();
 });
 
-socket.on('request', (username, url, video, image) => {
+socket.on('request', (username, title, url, pfp, color, time) => {
   let item = document.createElement('li');
 
-  item.innerHTML = `<h3>${username}: ${video}<h3><img src="${image}" onclick='window.open("${url}")' class="thumbnail"><span class="close" onclick="this.parentElement.style.display='none';">Close</span>`;
+  item.innerHTML = `<div class="container"><img src="${pfp}" alt="${username}"><span style="color: ${color}; font-weight: bold;">${username}</span><p>${title}</p><button class="playvideo" onclick="window.open('${url}');">Play Video</button><span class="time-right">${time} (UTC)</span></div>`;
+
+  hideLoader();
 
   playlist.appendChild(item);
+
   window.scrollTo(0, document.body.scrollHeight);
+
 });

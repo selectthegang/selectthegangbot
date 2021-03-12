@@ -6,6 +6,7 @@ let prefix = process.env.PREFIX;
 //const ev = new Eval();
 const { mods, bannedUsers } = require('./roles');
 const { getStatus } = require("mc-server-status");
+const fetch = require('node-fetch');
 db = require('./database/mongo');
 
 const client = new tmi.Client({

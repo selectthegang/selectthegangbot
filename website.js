@@ -5,6 +5,7 @@ const tmi = require('tmi.js');
 let prefix = process.env.PREFIX;
 const { YTSearcher } = require('ytsearcher');
 const { mods, bannedUsers } = require('./roles');
+const fetch = require('node-fetch');
 const searcher = new YTSearcher({
   key: process.env.GOOGLE,
   revealkey: false,
@@ -30,6 +31,16 @@ io.on('connection', async socket => {
     const command = args.shift().toLowerCase();
 
     client.on('message', async (channel, context, message, self) => {
+      let twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${context.username}`, {
+        method: 'get',
+        headers: {
+          "Client-ID": process.env.TWITCHCLIENT,
+          "Authorization": "Bearer " + process.env.TWITCHBEARER
+        },
+      })
+        .then(res => res.json());
+
+      let profilepicture = twitchprofile['data'][0].profile_image_url;
       if (bannedUsers.includes(context.username)) {
         return;
       }
@@ -44,25 +55,25 @@ io.on('connection', async socket => {
 
         let thumbnail = result.first['thumbnails'];
 
-        socket.emit('request', context.username, result.first.url, result.first.title, thumbnail['default'].url);
-
-        let userinfo = await db.user.get(context.username);
-
-        if (userinfo === null) {
-          client.say('chat', context.username, `requested ${result.first.title}`, context.color, null, time)
-        }
-        else {
-          socket.emit('chat', userinfo.nickname, `requested ${result.first.title}`, context.color, userinfo.role, time)
-        }
-
+        socket.emit('request', context.username, result.first.title, result.first.url, profilepicture, context.color, time);
       }
-    })
-  })
+    });
+  });
 });
 
 
 io.on('connection', async socket => {
   client.on('message', async (channel, context, message, self) => {
+    let twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${context.username}`, {
+      method: 'get',
+      headers: {
+        "Client-ID": process.env.TWITCHCLIENT,
+        "Authorization": "Bearer " + process.env.TWITCHBEARER
+      },
+    })
+      .then(res => res.json());
+
+    let profilepicture = twitchprofile['data'][0].profile_image_url;
     let date_ob = new Date();
     let hours = date_ob.getUTCHours();
     let minutes = date_ob.getUTCMinutes();
@@ -86,10 +97,10 @@ io.on('connection', async socket => {
       let userinfo = await db.user.get(context.username);
 
       if (userinfo === null) {
-        socket.emit('chat', context.username, message, context.color, null, time)
+        socket.emit('chat', context.username, message, context.color, time, profilepicture)
       }
       else {
-        socket.emit('chat', userinfo.nickname, message, context.color, userinfo.role, time)
+        socket.emit('chat', userinfo.nickname, message, context.color, time, profilepicture)
       }
     }
   })
