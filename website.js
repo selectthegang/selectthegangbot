@@ -26,6 +26,16 @@ const client = new tmi.Client({
 client.connect();
 
 io.on('connection', async socket => {
+
+  let messages = await db.messages.list();
+
+  messages.forEach(function(info) {
+    socket.emit('chat', info.username, info.message, info.color, info.time, info.picture);
+  })
+
+})
+
+io.on('connection', async socket => {
   client.on('message', async (channel, context, message, self) => {
     const args = message.slice(1).split(' ');
     const command = args.shift().toLowerCase();
@@ -103,11 +113,15 @@ io.on('connection', async socket => {
         socket.emit('chat', userinfo.nickname, message, context.color, time, profilepicture)
       }
     }
+
   })
 });
 
 db = require('./database/mongo');
 
+app.get('/callback', async (req, res) => {
+  res.send(req.query.code);
+})
 app.get('/chat', async (req, res) => {
   res.sendFile(`/index.html`, { root: `${__dirname}/chat` });
 });

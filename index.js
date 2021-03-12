@@ -6,7 +6,6 @@ let prefix = process.env.PREFIX;
 //const ev = new Eval();
 const { mods, bannedUsers } = require('./roles');
 const { getStatus } = require("mc-server-status");
-const fetch = require('node-fetch');
 db = require('./database/mongo');
 
 const client = new tmi.Client({
@@ -44,6 +43,67 @@ client.on('message', async (channel, context, message, self) => {
   const args = message.slice(1).split(' ');
   const command = args.shift().toLowerCase();
 
+  const fetch = require('node-fetch');
+  // let channelname = channel.replace('#', '');
+
+  // if (message.startsWith(`${prefix}title`)) {
+
+  //   if (!mods.includes(context.username)) {
+  //     client.say(channel, `you don't have permissions to use this command!`)
+  //   }
+
+  //   else {
+  //     fetch('https://api.twitch.tv/helix/channels?broadcaster_id=180777825',
+  //       {
+  //         method: 'PATCH',
+  //         headers: {
+  //           'Client-ID': process.env.TWITCHCLIENT,
+  //           'Authorization': 'Bearer ' + process.env.TWITCHBEARER,
+  //           'Content-Type': 'application/json'
+  //         },
+  //         body: JSON.stringify({
+  //           title: args.join(' ')
+  //         })
+
+  //       }).then(res => res.json())
+  //       .then(json => console.log(json))
+  //     client.say(channel, `changed title to ${args.join(' ')}`);
+  //   }
+
+  // }
+
+  if (message.startsWith(`${prefix}stream`)) {
+    let channelname = channel.replace('#', '')
+    let stream = await fetch(`https://api.twitch.tv/helix/streams?user_login=${channelname}`, {
+      method: 'get',
+      headers: {
+        "Client-ID": process.env.TWITCHCLIENT,
+        "Authorization": "Bearer " + process.env.TWITCHBEARER
+      },
+    })
+      .then(res => res.json())
+
+    let info = stream['data'][0];
+
+    client.say(channel, `Title: ${info.title} | Category: ${info.game_name} | Viewer Count: ${info.viewer_count}`)
+  }
+
+  if (message.startsWith(`${prefix}info`)) {
+    let twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${context.username}`, {
+      method: 'get',
+      headers: {
+        "Client-ID": process.env.TWITCHCLIENT,
+        "Authorization": "Bearer " + process.env.TWITCHBEARER
+      },
+    })
+      .then(res => res.json())
+
+    let displayname = twitchprofile['data'][0].display_name;
+    let userid = twitchprofile['data'][0].id;
+    let description = twitchprofile['data'][0].description;
+
+    client.say(channel, `Display Name: ${displayname} | Description: ${description}`)
+  }
   if (message.startsWith(`${prefix}timeout`)) {
     if (!mods.includes(context.username)) {
       return client.say(channel, `you don't have permissions to use this command!`);
@@ -85,7 +145,6 @@ client.on('message', async (channel, context, message, self) => {
   }
 
   const querystring = require('querystring');
-  const fetch = require('node-fetch');
 
   if (message.startsWith(`${prefix}urban`)) {
     if (!args.join(' ')) {
@@ -183,10 +242,38 @@ client.on('message', async (channel, tags, message, self) => {
   let blacklisted = await db.blacklist.get(tags.username);
   if (blacklisted) return;
   let number = await db.point.get(tags.username);
+  let userinfo = await db.user.get(tags.username);
+
   if (!number) {
     db.point.add(tags.username, 15);
   } else {
     db.point.set(tags.username, math.add(number.points, 1));
+  }
+
+  const fetch = require('node-fetch');
+
+  let twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${tags.username}`, {
+    method: 'get',
+    headers: {
+      "Client-ID": process.env.TWITCHCLIENT,
+      "Authorization": "Bearer " + process.env.TWITCHBEARER
+    },
+  })
+    .then(res => res.json());
+
+  let profilepicture = twitchprofile['data'][0].profile_image_url;
+  let date_ob = new Date();
+  let hours = date_ob.getUTCHours();
+  let minutes = date_ob.getUTCMinutes();
+  let seconds = date_ob.getUTCSeconds();;
+
+  let time = `${hours}:${minutes}:${seconds}`;
+
+  if (userinfo === null) {
+    db.messages.add(tags.username, message, tags.color, time, profilepicture);
+  }
+  else {
+    db.messages.add(userinfo.nickname, message, tags.color, time, profilepicture);
   }
 });
 client.on('message', async (channel, tags, message, self) => {

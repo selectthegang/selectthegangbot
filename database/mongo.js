@@ -3,12 +3,13 @@ const pointSchema = require('./schema/pointSchema');
 const blacklistSchema = require('./schema/blacklistSchema');
 const itemSchema = require('./schema/itemSchema');
 const userSchema = require('./schema/userSchema');
+const messageSchema = require('./schema/messages');
 
 module.exports = {
   pointSchema: require('./schema/pointSchema'),
   blacklistSchema: require('./schema/blacklistSchema'),
   itemSchema: require('./schema/itemSchema'),
-  userSchema: require('./schema/userSchema'),
+  userSchema: require('./schema/userSchema'), messageSchema: require('./schema/messages'),
 
   async connect(uri) {
     await mongoose.connect(
@@ -19,6 +20,30 @@ module.exports = {
         useFindAndModify: false
       }
     );
+  },
+  messages: {
+    async list() {
+      const data = await messageSchema.find();
+      return data;
+    },
+    async add(username, message, color, time, profilepicture) {
+      const add = await messageSchema.findOneAndUpdate(
+        {
+          username: username,
+          message: message,
+          color: color,
+          time: time,
+          picture: profilepicture,
+        },
+        {
+          username: username,
+          message: message,
+        },
+        {
+          upsert: true
+        }
+      );
+    }
   },
   items: {
     async get(itemname) {
