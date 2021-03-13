@@ -43,6 +43,10 @@ module.exports = {
           upsert: true
         }
       );
+    },
+    async remove(username) {
+      const res = await messageSchema.deleteOne({ username: username });
+      return res;
     }
   },
   items: {

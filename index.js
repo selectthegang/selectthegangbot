@@ -89,20 +89,31 @@ client.on('message', async (channel, context, message, self) => {
   }
 
   if (message.startsWith(`${prefix}info`)) {
-    let twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${context.username}`, {
-      method: 'get',
-      headers: {
-        "Client-ID": process.env.TWITCHCLIENT,
-        "Authorization": "Bearer " + process.env.TWITCHBEARER
-      },
-    })
-      .then(res => res.json())
+    if (!args[0]) {
+      twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${context.username}`, {
+        method: 'get',
+        headers: {
+          "Client-ID": process.env.TWITCHCLIENT,
+          "Authorization": "Bearer " + process.env.TWITCHBEARER
+        },
+      })
+        .then(res => res.json())
+    }
 
+    else {
+      twitchprofile = await fetch(`https://api.twitch.tv/helix/users?login=${args.join(' ')}`, {
+        method: 'get',
+        headers: {
+          "Client-ID": process.env.TWITCHCLIENT,
+          "Authorization": "Bearer " + process.env.TWITCHBEARER
+        },
+      })
+        .then(res => res.json())
+    }
     let displayname = twitchprofile['data'][0].display_name;
-    let userid = twitchprofile['data'][0].id;
     let description = twitchprofile['data'][0].description;
 
-    client.say(channel, `Display Name: ${displayname} | Description: ${description}`)
+    client.say(channel, `Display Name: ${displayname} | Description: ${description}`);
   }
   if (message.startsWith(`${prefix}timeout`)) {
     if (!mods.includes(context.username)) {
@@ -268,6 +279,16 @@ client.on('message', async (channel, tags, message, self) => {
   let seconds = date_ob.getUTCSeconds();;
 
   let time = `${hours}:${minutes}:${seconds}`;
+
+  if (bannedUsers.includes(tags.username)) {
+    return;
+  }
+  if (message.startsWith(prefix)) {
+    return;
+  }
+  if (tags['custom-reward-id']) {
+    return;
+  }
 
   if (userinfo === null) {
     db.messages.add(tags.username, message, tags.color, time, profilepicture);
