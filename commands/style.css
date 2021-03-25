@@ -1,0 +1,21 @@
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #333;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+li {
+	list-style: none;
+}
+
+.command {
+	font-size: 18px;
+	font-weight: 500;
+	border: 2px solid #dedede;
+	background-color: white;
+	color: rgb(0, 0, 0);
+	border-radius: 12px;
+	padding: 10px;
+	margin: 10px 0;
+}
