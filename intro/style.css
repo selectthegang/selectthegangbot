@@ -1,0 +1,19 @@
+body {
+  display: flex;
+  background-color: #444;
+}
+
+.logo {
+position: absolute;
+width: 100px;
+height: 100px;
+border-radius: 20%;
+}
+
+.paragraph-1 {
+position: absolute;
+font-weight: bolder;
+top: 100px;
+font-size: 35px;
+color: #fff;
+}

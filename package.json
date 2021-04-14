@@ -10,17 +10,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@replit/database": "^2.0.0",
+    "@replit/database": "^2.0.1",
     "express": "^4.17.1",
     "html-metadata-parser": "^1.0.3",
-    "mathjs": "^9.2.0",
+    "mathjs": "^9.3.0",
     "mc-server-status": "^2.0.2",
     "moment-timezone": "^0.5.33",
-    "mongoose": "^5.11.18",
+    "mongoose": "^5.12.3",
     "node-fetch": "^2.6.1",
     "open-eval": "^1.0.0",
     "socket.io": "^3.1.2",
-    "tmi.js": "^1.7.1",
-    "ytsearcher": "^1.2.3"
+    "tmi.js": "^1.7.5",
+    "twitter-lite": "^1.1.0",
+    "ytsearcher": "^1.2.4"
   }
 }

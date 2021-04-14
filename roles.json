@@ -1,9 +1,9 @@
 {
   "mods": [
     "selectthegang",
-    "its_indy",
     "joggerjoel",
-    "yuumiontwitch"
+    "yummiontwitch",
+    "cojored"
   ],
   "bannedUsers": [
     "selectthegang_bot"
