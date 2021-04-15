@@ -21,8 +21,6 @@ const client = new tmi.Client({
 client.connect();
 
 io.on('connection', async socket => {
-	setInterval(function(){ socket.emit('refresh', true) }, 10000);
-	
 	let messages = await db.messages.list();
 
 	messages.forEach(function(info) {
@@ -62,11 +60,11 @@ io.on('connection', async socket => {
 		const args = message.slice(1).split(' ');
 		const command = args.shift().toLowerCase();
 
-		/*let blacklisted = await db.blacklist.get(context.username);
+		let blacklisted = await db.blacklist.get(context.username);
 
 		if (blacklisted) {
 			return;
-		}*/
+		}
 
 		let twitchprofile = await fetch(
 			`https://api.twitch.tv/helix/users?login=${context.username}`,
@@ -134,26 +132,7 @@ io.on('connection', async socket => {
 		}
 		if (bannedUsers.includes(context.username)) {
 			return;
-		} /*
-        var match = url.match(regExp);
-        return (match && match[7].length == 11) ? match[7] : false;
-      }
-      if (mods.includes(context.username)) {
-        socket.emit(
-          'request',
-          context.username,
-          youtube_parser(args[0]),
-          profilepicture,
-          context.color,
-          time
-        );
-      }
-      else {
-        return;
-      }
-    }
-    */
-
+		}
 		if (message.startsWith(`${prefix}play`)) {
 			if (mods.includes(context.username)) {
 				function youtube_parser(url) {

@@ -4,11 +4,12 @@ const website = require('./website');
 let prefix = process.env.PREFIX;
 const { mods, bannedUsers } = require('./roles');
 const { getStatus } = require('mc-server-status');
+const Eval = require('open-eval');
+const ev = new Eval();
 const config = require('./twitterconfig');
 const twitter = require('twitter-lite');
 const tweet = new twitter(config);
 db = require('./database/mongo');
-
 const client = new tmi.Client({
 	options: {
 		debug: false
@@ -35,15 +36,25 @@ client.on('message', async (channel, context, message, self) => {
 
 	const fetch = require('node-fetch');
 
-	if (message.startsWith(`${prefix}drop`)) {
-		client.say(
-			channel,
-			`! you are now falling off a cliff, only way to save yourself is by hitting the Target Board. get 100 points to receive VIP on the channel!`
-		);
-	}
-	if (message.startsWith(`${prefix}resetdrop`)) {
-		client.say(channel, `!timeoff`);
-		client.say(channel, `! drop reset`);
+	if (message.startsWith(`${prefix}eval`)) {
+		if (mods.includes(context.username)) {
+			let lang = args[0];
+			let code = message
+				.split(' ')
+				.slice(2)
+				.join(' ');
+
+			ev.eval(lang, code)
+				.then(data => client.say(channel, data.output))
+				.catch(() => {
+					client.say(
+						channel,
+						`my systems are currently experiencing issues, please try again later!`
+					);
+				});
+		} else {
+			client.say(channel, `you don't have permissions to use this command!`);
+		}
 	}
 	if (message.startsWith(`${prefix}messagecount`)) {
 		let info = await db.messages.list();
