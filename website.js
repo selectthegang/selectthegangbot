@@ -1,6 +1,8 @@
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const urlRegex = require('url-regex');
+const getTitleAtUrl = require('get-title-at-url');
 const tmi = require('tmi.js');
 let prefix = process.env.PREFIX;
 const { mods, bannedUsers } = require('./roles');
@@ -24,14 +26,31 @@ io.on('connection', async socket => {
 	let messages = await db.messages.list();
 
 	messages.forEach(function(info) {
-		socket.emit(
-			'chat',
-			info.username,
-			info.message,
-			info.color,
-			info.time,
-			info.picture
-		);
+		let url = info.message.match(urlRegex());
+
+		if (url === null) {
+			socket.emit(
+				'chat',
+				info.username,
+				info.message,
+				info.color,
+				info.time,
+				info.picture,
+				info.id
+			);
+		} else {
+			getTitleAtUrl(url[0], function(title) {
+				socket.emit(
+					'chat',
+					info.username,
+					info.message.replace(url[0], `<a href="${url[0]}">${title}</a>`),
+					info.color,
+					info.time,
+					info.picture,
+					info.id
+				);
+			});
+		}
 	});
 
 	client.on('message', async (channel, context, message, self) => {
@@ -86,21 +105,51 @@ io.on('connection', async socket => {
 		if (
 			context['custom-reward-id'] === 'e36bc78c-71c9-42c8-bdef-415cba7407c1'
 		) {
+			let info = await db.video.get('1');
 			function youtube_parser(url) {
 				var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
 				var match = url.match(regExp);
 				return match && match[7].length == 11 ? match[7] : false;
 			}
 
-			socket.emit(
-				'request',
-				context.username,
-				youtube_parser(message),
-				profilepicture,
-				context.color,
-				time
-			);
+			function playVideo() {
+				socket.emit(
+					'request',
+					context.username,
+					youtube_parser(message),
+					profilepicture,
+					context.color,
+					time
+				);
+			}
+
+			function playNextVideo() {
+				socket.emit('refresh', true);
+				setTimeout(function() {
+					socket.emit(
+						'request',
+						context.username,
+						youtube_parser(message),
+						profilepicture,
+						context.color,
+						time
+					);
+				}, 3000);
+				db.video.add('1');
+				setTimeout(function() {
+					db.video.remove('1');
+				}, 300000);
+			}
+			playVideo();
+			/*	if (info === null) {
+				playVideo();
+			} else {
+				setTimeout(function() {
+					playNextVideo();
+				}, 300000);
+			}*/
 		}
+
 		if (context['custom-reward-id']) {
 			return;
 		}
@@ -112,8 +161,26 @@ io.on('connection', async socket => {
 			}
 		}
 		if (message.startsWith(`${prefix}refresh`)) {
+			let youtube = await db.video.get('1');
 			if (mods.includes(context.username)) {
-				socket.emit('refresh', true);
+				if (youtube === null) {
+					socket.emit('refresh', true);
+					db.video.remove('1');
+				} else {
+					socket.emit('refresh', true);
+				}
+			} else {
+				return;
+			}
+		}
+		if (message.startsWith(`${prefix}yt_clear`)) {
+			db.video.remove('1');
+		}
+		if (message.startsWith(`${prefix}rm`)) {
+			let id = args[0];
+			if (mods.includes(context.username)) {
+				db.messages.remove(id);
+				socket.emit('remove', id);
 			} else {
 				return;
 			}
@@ -123,7 +190,7 @@ io.on('connection', async socket => {
 				let info = await db.messages.list();
 
 				info.forEach(function(lol) {
-					db.messages.remove(lol.username);
+					db.messages.remove(lol.id);
 				});
 				socket.emit('refresh', true);
 			} else {
@@ -132,25 +199,6 @@ io.on('connection', async socket => {
 		}
 		if (bannedUsers.includes(context.username)) {
 			return;
-		}
-		if (message.startsWith(`${prefix}play`)) {
-			if (mods.includes(context.username)) {
-				function youtube_parser(url) {
-					var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-					var match = url.match(regExp);
-					return match && match[7].length == 11 ? match[7] : false;
-				}
-				socket.emit(
-					'request',
-					context.username,
-					youtube_parser(args[0]),
-					profilepicture,
-					context.color,
-					time
-				);
-			} else {
-				return;
-			}
 		}
 		if (message === `${prefix}rickroll`) {
 			socket.emit(
@@ -167,7 +215,8 @@ io.on('connection', async socket => {
 				'get rickrolled!',
 				context.color,
 				time,
-				profilepicture
+				profilepicture,
+				'none'
 			);
 		}
 		if (message.startsWith(`${prefix}lofi`)) {
@@ -193,25 +242,54 @@ io.on('connection', async socket => {
 			return;
 		} else {
 			let userinfo = await db.user.get(context.username);
+			let url = message.match(urlRegex());
 
-			if (userinfo === null) {
-				socket.emit(
-					'chat',
-					context.username,
-					message,
-					context.color,
-					time,
-					profilepicture
-				);
+			if (url === null) {
+				if (userinfo === null) {
+					socket.emit(
+						'chat',
+						context.username,
+						message,
+						context.color,
+						time,
+						profilepicture,
+						context['id']
+					);
+				} else {
+					socket.emit(
+						'chat',
+						userinfo.nickname,
+						message,
+						context.color,
+						time,
+						profilepicture,
+						context['id']
+					);
+				}
 			} else {
-				socket.emit(
-					'chat',
-					userinfo.nickname,
-					message,
-					context.color,
-					time,
-					profilepicture
-				);
+				getTitleAtUrl(url[0], function(title) {
+					if (userinfo === null) {
+						socket.emit(
+							'chat',
+							context.username,
+							message.replace(url[0], `<a href="${url[0]}">${title}</a>`),
+							context.color,
+							time,
+							profilepicture,
+							context['id']
+						);
+					} else {
+						socket.emit(
+							'chat',
+							userinfo.nickname,
+							message.replace(url[0], `<a href="${url[0]}">${title}</a>`),
+							context.color,
+							time,
+							profilepicture,
+							context['id']
+						);
+					}
+				});
 			}
 		}
 	});

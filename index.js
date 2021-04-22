@@ -33,7 +33,6 @@ client.on('message', async (channel, context, message, self) => {
 	if (blacklisted) return;
 	const args = message.slice(1).split(' ');
 	const command = args.shift().toLowerCase();
-
 	const fetch = require('node-fetch');
 
 	if (message.startsWith(`${prefix}eval`)) {
@@ -56,6 +55,10 @@ client.on('message', async (channel, context, message, self) => {
 			client.say(channel, `you don't have permissions to use this command!`);
 		}
 	}
+	if (message.startsWith(`${prefix}messageid`)) {
+		let info = await db.messages.get(args.join(' '));
+		client.say(channel, '! ' + info.id);
+	}
 	if (message.startsWith(`${prefix}messagecount`)) {
 		let info = await db.messages.list();
 		let number = Object.keys(info).length;
@@ -74,18 +77,8 @@ client.on('message', async (channel, context, message, self) => {
 			})
 			.catch(console.error);
 	}
-	if (message.startsWith(`${prefix}disable`)) {
-		if (context.username === 'selectthegang') {
-			client.say(channel, `command disabled`);
-		} else {
-			return;
-		}
-	}
 	if (message.startsWith(`${prefix}vanish`)) {
 		client.say(channel, `/timeout ${context.username} 1s`);
-	}
-	if (message.startsWith(`${prefix}discord`)) {
-		client.say(channel, `discord: https://discord.gg/TKRxVqyx`);
 	}
 	if (message.startsWith(`${prefix}commands`)) {
 		client.say(channel, `https://selectthegang.tk/commands`);
@@ -345,14 +338,22 @@ client.on('message', async (channel, tags, message, self) => {
 		return;
 	}
 	if (userinfo === null) {
-		db.messages.add(tags.username, message, tags.color, time, profilepicture);
+		db.messages.add(
+			tags.username,
+			message,
+			tags.color,
+			time,
+			profilepicture,
+			tags['id']
+		);
 	} else {
 		db.messages.add(
 			userinfo.nickname,
 			message,
 			tags.color,
 			time,
-			profilepicture
+			profilepicture,
+			tags['id']
 		);
 	}
 });

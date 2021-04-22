@@ -3,7 +3,7 @@ let chat = document.getElementById('chat');
 let loader = document.getElementById('loader');
 let waiting = document.getElementById('waiting');
 
-waiting.innerText = `please wait...`;
+waiting.innerText = `waiting for messages`;
 
 function hideLoader() {
 	loader.style.display = 'none';
@@ -11,11 +11,11 @@ function hideLoader() {
 	waiting.style.display = 'none';
 }
 
-socket.on('chat', (username, message, color, time, pfp) => {
+socket.on('chat', (username, message, color, time, pfp, id) => {
 	let item = document.createElement('li');
 
 	if (color === null) {
-		item.innerHTML = `<div class="message"><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: black;">${username}</span><span class="timeStampRight">${time}</span></div>`;
+		item.innerHTML = `<div class="message" id="${id}"><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: black;">${username}</span><span class="timeStampRight">${time}</span></div>`;
 
 		hideLoader();
 
@@ -23,7 +23,7 @@ socket.on('chat', (username, message, color, time, pfp) => {
 
 		window.scrollTo(0, document.body.scrollHeight);
 	} else {
-		item.innerHTML = `<div class="message"><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: ${color};">${username}</span><span class="timeStampRight">${time}</span></div>`;
+		item.innerHTML = `<div class="message" id="${id}"><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: ${color};">${username}</span><span class="timeStampRight">${time}</span></div>`;
 
 		hideLoader();
 
@@ -39,6 +39,10 @@ socket.on('refresh', sure => {
 
 socket.on('redirect', url => {
 	window.location.href = url;
+});
+
+socket.on('remove', id => {
+	document.getElementById(id).style.display = 'none';
 });
 
 socket.on('request', (username, url, pfp, color, time) => {
