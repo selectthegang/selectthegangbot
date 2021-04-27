@@ -3,14 +3,12 @@ const blacklistSchema = require('./schema/blacklistSchema');
 const userSchema = require('./schema/userSchema');
 const messageSchema = require('./schema/messages');
 const todoSchema = require('./schema/todo');
-const youtubeSchema = require('./schema/youtube');
 
 module.exports = {
 	blacklistSchema: require('./schema/blacklistSchema'),
 	userSchema: require('./schema/userSchema'),
 	messageSchema: require('./schema/messages'),
 	todoSchema: require('./schema/todo'),
-	youtubeSchema: require('./schema/youtube'),
 
 	async connect(uri) {
 		await mongoose.connect(
@@ -21,29 +19,6 @@ module.exports = {
 				useFindAndModify: false
 			}
 		);
-	},
-	video: {
-		async add(username) {
-			const add = await youtubeSchema.findOneAndUpdate(
-				{
-					username: username
-				},
-				{
-					username: username
-				},
-				{
-					upsert: true
-				}
-			);
-		},
-		async remove(username) {
-			const res = await youtubeSchema.deleteOne({ username: username });
-			return res;
-		},
-		async get(username) {
-			const res = await youtubeSchema.findOne({ username: username });
-			return res;
-		}
 	},
 	todo: {
 		async list() {

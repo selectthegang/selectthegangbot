@@ -21,7 +21,7 @@ const client = new tmi.Client({
 		username: process.env.USERNAME,
 		password: process.env.PASSWORD
 	},
-	channels: ['joggerjoel', 'jlabelle71']
+	channels: ['selectthegang', 'joggerjoel']
 });
 
 client.connect().then(async () => {
@@ -36,25 +36,22 @@ client.on('message', async (channel, context, message, self) => {
 	const fetch = require('node-fetch');
 
 	if (message.startsWith(`${prefix}eval`)) {
-		if (mods.includes(context.username)) {
-			let lang = args[0];
-			let code = message
-				.split(' ')
-				.slice(2)
-				.join(' ');
+		let lang = args[0];
+		let code = message
+			.split(' ')
+			.slice(2)
+			.join(' ');
 
-			ev.eval(lang, code)
-				.then(data => client.say(channel, data.output))
-				.catch(() => {
-					client.say(
-						channel,
-						`my systems are currently experiencing issues, please try again later!`
-					);
-				});
-		} else {
-			client.say(channel, `you don't have permissions to use this command!`);
-		}
+		ev.eval(lang, code)
+			.then(data => client.say(channel, `${data.output}`))
+			.catch(() => {
+				client.say(
+					channel,
+					`my systems are currently experiencing issues, please try again later!`
+				);
+			});
 	}
+
 	if (message.startsWith(`${prefix}messageid`)) {
 		let info = await db.messages.get(args.join(' '));
 		client.say(channel, '! ' + info.id);
@@ -169,11 +166,15 @@ client.on('message', async (channel, context, message, self) => {
 	}
 
 	if (message.startsWith(`${prefix}ban`)) {
+		let reason = args[1];
 		if (!mods.includes(context.username)) {
 			return client.say(
 				channel,
 				`you don't have permissions to use this command!`
 			);
+		}
+		if (!args[0]) {
+			client.say(channel, `you didn't specify a username to ban`);
 		} else {
 			client.say(channel, `/ban ${args[0]}`);
 			client.say(channel, `banned ${args[0]}`);
@@ -317,7 +318,7 @@ client.on('message', async (channel, tags, message, self) => {
 	let now = moment();
 	let correcttime = now.tz('America/New_York');
 
-	let time = correcttime.format('h:mm:ssa');
+	let time = correcttime.format('h:mma');
 
 	if (tags['custom-reward-id']) {
 		return;
