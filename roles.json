@@ -6,5 +6,8 @@
   ],
   "bannedUsers": [
     "selectthegang_bot"
+  ],
+  "colors": [
+    "blue", "coral", "dodgerblue", "springgreen", "yellowgreen", "green", "orangered", "red", "goldenrod", "hotpink", "cadetblue", "seagreen", "chocolate", "blueviolet", "firebrick"
   ]
 }

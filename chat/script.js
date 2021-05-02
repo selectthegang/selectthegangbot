@@ -45,19 +45,3 @@ function deleteMessage(Boolean) {
 	document.getElementById(Boolean).style.display = 'none';
 	socket.emit('remove', Boolean);
 }
-
-function deleteVideo(Boolean) {
-	document.getElementById(Boolean).style.display = 'none';
-}
-
-socket.on('request', (username, url, pfp, color, time) => {
-	let item = document.createElement('li');
-
-	item.innerHTML = `<div class="message"><span class="closebtn" onclick="deleteVideo(this.parentElement.id)">&times;</span><img class="profilePic" src="${pfp}"><iframe width="240" height="172" src="https://www.youtube.com/embed/${url}?autoplay=1"> </iframe><span class="timeStampRight">${time}</span></div>`;
-
-	hideLoader();
-
-	chat.appendChild(item);
-
-	window.scrollTo(0, document.body.scrollHeight);
-});

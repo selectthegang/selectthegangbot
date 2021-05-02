@@ -3,7 +3,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const tmi = require('tmi.js');
 let prefix = process.env.PREFIX;
-const { mods, bannedUsers } = require('./roles');
+const { mods, bannedUsers, colors } = require('./roles');
 const fetch = require('node-fetch');
 const client = new tmi.Client({
 	options: {
@@ -16,7 +16,7 @@ const client = new tmi.Client({
 		username: process.env.USERNAME,
 		password: process.env.PASSWORD
 	},
-	channels: ['selectthegang', 'joggerjoel']
+	channels: ['joggerjoel']
 });
 client.connect();
 
@@ -91,6 +91,9 @@ io.on('connection', async socket => {
 		let correcttime = now.tz('America/New_York');
 
 		let time = correcttime.format('h:mma');
+		if (message.startsWith(`!stopvideo`)) {
+			socket.emit('refreshVid', true);
+		}
 		if (message.startsWith(`${prefix}play`)) {
 			let badges = context.badges;
 
@@ -240,6 +243,12 @@ app.get('/commands', async (req, res) => {
 });
 app.get('/commandscss', async (req, res) => {
 	res.sendFile(`/style.css`, { root: `${__dirname}/commands` });
+});
+app.get('/videos', async (req, res) => {
+	res.sendFile(`/index.html`, { root: `${__dirname}/video` });
+});
+app.get('/videojs', async (req, res) => {
+	res.sendFile(`/script.js`, { root: `${__dirname}/video` });
 });
 app.get('/commandsjs', async (req, res) => {
 	res.sendFile(`/script.js`, { root: `${__dirname}/commands` });
