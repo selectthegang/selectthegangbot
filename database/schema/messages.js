@@ -6,7 +6,8 @@ const schema = new mongoose.Schema({
 	color: String,
 	time: String,
 	picture: String,
-	id: String
+	id: String,
+	verified: Boolean,
 });
 
 module.exports = mongoose.model('messages', schema);

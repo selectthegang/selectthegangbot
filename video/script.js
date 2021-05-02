@@ -10,11 +10,5 @@ function deleteVideo(Boolean) {
 }
 
 socket.on('request', (username, url, pfp, color, time) => {
-	let item = document.createElement('li');
-
-	item.innerHTML = `<iframe width="500" height="300" src="https://www.youtube.com/embed/${url}?autoplay=1"></iframe>`;
-
-	videos.appendChild(item);
-
-	window.scrollTo(0, document.body.scrollHeight);
+	videos.innerHTML = `<iframe width="500" height="300" src="https://www.youtube.com/embed/${url}?autoplay=1"></iframe>`;
 });

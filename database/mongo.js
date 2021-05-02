@@ -48,7 +48,7 @@ module.exports = {
 			const data = await messageSchema.find();
 			return data;
 		},
-		async add(username, message, color, time, profilepicture, id) {
+		async add(username, message, color, time, profilepicture, id, verified) {
 			const add = await messageSchema.findOneAndUpdate(
 				{
 					username: username,
@@ -56,7 +56,8 @@ module.exports = {
 					color: color,
 					time: time,
 					picture: profilepicture,
-					id: id
+					id: id,
+					verified: verified
 				},
 				{
 					username: username,
@@ -64,7 +65,8 @@ module.exports = {
 					color: color,
 					time: time,
 					picture: profilepicture,
-					id: id
+					id: id,
+					verified: verified
 				},
 				{
 					upsert: true
@@ -89,17 +91,17 @@ module.exports = {
 			const res = await userSchema.deleteOne({ username: username });
 			return res;
 		},
-		async add(username, nickname, role) {
+		async add(username, nickname, verified) {
 			const add = await userSchema.findOneAndUpdate(
 				{
 					username: username,
 					nickname: nickname,
-					role: role
+					verified: verified
 				},
 				{
 					username: username,
 					nickname: nickname,
-					role: role
+					verified: verified
 				},
 				{
 					upsert: true

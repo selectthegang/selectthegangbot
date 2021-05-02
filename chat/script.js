@@ -11,26 +11,21 @@ function hideLoader() {
 	waiting.style.display = 'none';
 }
 
-socket.on('chat', (username, message, color, time, pfp, id) => {
+socket.on('chat', (username, message, color, time, pfp, id, verified) => {
 	let item = document.createElement('li');
+	let code;
 
-	if (color === null) {
-		item.innerHTML = `<div class="message" id="${id}"><span class="closebtn" onclick="deleteMessage(this.parentElement.id)">&times;</span><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: black;">${username}</span><span class="timeStampRight">${time}</span></div>`;
-
-		hideLoader();
-
-		chat.appendChild(item);
-
-		window.scrollTo(0, document.body.scrollHeight);
+	if (verified === true) {
+		code = `<div class="message" id="${id}"><span class="closebtn" onclick="deleteMessage(this.parentElement.id)">&times;</span><img class="profilePic" src="${pfp}"><img class="verified" src="https://i.ibb.co/HpdyNFc/unnamed-removebg-preview.png"><p>${message}</p><span class="username" style="color: ${color};">${username}</span><span class="timeStampRight">${time}</span></div>`;
 	} else {
-		item.innerHTML = `<div class="message" id="${id}"><span class="closebtn" onclick="deleteMessage(this.parentElement.id)">&times;</span><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: ${color};">${username}</span><span class="timeStampRight">${time}</span></div>`;
-
-		hideLoader();
-
-		chat.appendChild(item);
-
-		window.scrollTo(0, document.body.scrollHeight);
+		code = `<div class="message" id="${id}"><span class="closebtn" onclick="deleteMessage(this.parentElement.id)">&times;</span><img class="profilePic" src="${pfp}"><p>${message}</p><span class="username" style="color: ${color};">${username}</span><span class="timeStampRight">${time}</span></div>`;
 	}
+
+	hideLoader();
+	item.innerHTML = code;
+	chat.appendChild(item);
+
+	window.scrollTo(0, document.body.scrollHeight);
 });
 
 socket.on('refresh', sure => {

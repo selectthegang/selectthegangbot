@@ -31,7 +31,8 @@ io.on('connection', async socket => {
 			info.color,
 			info.time,
 			info.picture,
-			info.id
+			info.id,
+			info.verified
 		);
 	});
 
@@ -213,7 +214,8 @@ io.on('connection', async socket => {
 					context.color,
 					time,
 					profilepicture,
-					context['id']
+					context['id'],
+					false
 				);
 			} else {
 				socket.emit(
@@ -223,7 +225,8 @@ io.on('connection', async socket => {
 					context.color,
 					time,
 					profilepicture,
-					context['id']
+					context['id'],
+					userinfo.verified
 				);
 			}
 		}
